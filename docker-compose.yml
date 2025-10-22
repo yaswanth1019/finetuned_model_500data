@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  mistral-app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - USE_SMALL_MODEL=true  # Set to false for full Mistral
+      - HF_TOKEN=${HF_TOKEN}
+    volumes:
+      - ./model_cache:/tmp/huggingface
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s  # Give more time for model loading

@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+torch
+transformers
+peft
+accelerate
+bitsandbytes
+pydantic
+huggingface-hub
+scipy

@@ -1,0 +1,39 @@
+# Example of how to use the loaded model for inference
+# def generate_response(prompt, model, tokenizer, max_length=1024):
+#     input_ids = tokenizer.encode(prompt, return_tensors="pt").to("cuda")
+    
+#     # Check if attention mask is needed and provide it if so
+#     attention_mask = input_ids.ne(tokenizer.pad_token_id).int().to("cuda")
+
+#     with torch.no_grad():
+#         output = model.generate(
+#             input_ids,
+#             attention_mask=attention_mask,
+#             max_length=max_length,
+#             num_return_sequences=1,
+#             pad_token_id=tokenizer.eos_token_id
+#         )
+
+#     response = tokenizer.decode(output[0], skip_special_tokens=True)
+#     return response
+
+def generate_response(prompt, model, tokenizer, max_new_tokens=100):
+    input_ids = tokenizer.encode(prompt, return_tensors="pt").to("cuda")
+    attention_mask = input_ids.ne(tokenizer.pad_token_id).int().to("cuda")
+
+    with torch.no_grad():
+        output = model.generate(
+            input_ids,
+            attention_mask=attention_mask,
+            max_new_tokens=max_new_tokens,
+            num_return_sequences=1,
+            pad_token_id=tokenizer.eos_token_id,
+            do_sample=True,
+            top_k=50,
+            top_p=0.95
+        )
+
+    response = tokenizer.decode(output[0], skip_special_tokens=True)
+    # Post-process to clean up the response
+    response = response.split(prompt)[-1].strip()
+    return response.split('\n')[0].strip() # Stop at the first newline
